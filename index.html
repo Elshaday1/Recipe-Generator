@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Generator</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --background-color: #f4f4f4;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        select, input, button {
+            display: block;
+            width: 100%;
+            margin-top: 5px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #388E3C;
+        }
+
+        #recipe-output {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #recipe-output h2 {
+            color: var(--primary-color);
+        }
+
+        #recipe-image {
+            margin-top: 10px;
+            max-width: 100%;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Random Recipe Generator</h1>
+        <label for="cuisine">Choose Cuisine:</label>
+        <select id="cuisine">
+            <option value="italian">Italian</option>
+            <option value="mexican">Mexican</option>
+            <option value="indian">Indian</option>
+        </select>
+
+        <label for="ingredients">Choose Ingredients:</label>
+        <input type="text" id="ingredients" placeholder="e.g., chicken, rice">
+
+        <label for="temperature">Temperature (Creativity):</label>
+        <input type="number" id="temperature" placeholder="0.7" min="0" max="1" step="0.1" value="0.7">
+
+        <button id="generate-button">Generate Recipe</button>
+
+        <div id="recipe-output"></div>
+        <img id="recipe-image" src="" alt="Recipe Image" style="display:none;">
+    </div>
+
+    <script>
+        document.getElementById('generate-button').addEventListener('click', function() {
+            const cuisine = document.getElementById('cuisine').value;
+            const ingredients = document.getElementById('ingredients').value;
+            const temperature = parseFloat(document.getElementById('temperature').value);
+    
+            generateRecipe(cuisine, ingredients, temperature);
+        });
+    
+        async function generateRecipe(cuisine, ingredients, temperature) {
+            const apiUrl = "http://localhost:3000/generate-recipe";
+    
+            const requestBody = {
+                cuisine: cuisine,
+                ingredients: ingredients,
+                temperature: temperature
+            };
+    
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+    
+                if (!response.ok) {
+                    throw new Error("Failed to fetch the recipe. Please check your input or server.");
+                }
+    
+                const data = await response.json();
+    
+                document.getElementById('recipe-output').innerHTML = `<h2>Generated Recipe</h2><p>${data.recipe}</p>`;
+                document.getElementById('recipe-image').style.display = 'none'; // No image functionality for now
+            } catch (error) {
+                document.getElementById('recipe-output').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+    </body>
+</html>
